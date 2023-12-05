@@ -1,0 +1,822 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Mostafa financial API
+  description: a simpe financial and inventory managmenet for mostafa
+
+servers:
+  - url: localhost/api/v1
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    error:
+      type: object
+      properties:
+        err:
+          type: string
+    message:
+      type: object
+      properties:
+        msg:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        role:
+          type: string
+    Item:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        image:
+          type: string
+        creationDate:
+          type: string
+        author:
+          $ref: "#/components/schemas/User"
+        description:
+          type: string
+        brand:
+          type: string
+    Sell:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/Item'
+        butItem:
+          $ref: '#/components/schemas/Buy'
+        Quantity:
+          type: integer
+        UnitPrice:
+          type: number
+        EtRRate:
+          type: number
+        Date:
+          type: string
+        ShippingPrice:
+          type: number 
+        TotalRials:
+          type: number
+        TotalEuros:
+          type: number
+        profitRial:
+          type: number
+        profitEuro:
+          type: number
+    Buy:
+      type: object
+      properties:
+        item:
+          $ref: '#/components/schemas/Item'
+        Quantity:
+          type: integer
+        UnitPrice:
+          type: number
+        EtRRate:
+          type: number
+        Date:
+          type: string
+        ShippingPrice:
+          type: number
+        TotalRials:
+          type: number
+        TotalEuros:
+          type: number
+
+#----------------------------------------------------------------------------
+paths: 
+  /users:
+    get:
+      description: return a list of registered users with username and role
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  roel:
+                    type: string
+        '403':
+          description: User is not authorized to access data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/signup:
+    post:
+      description: signup new users
+      parameters:
+        - name: email
+          in: query
+          description: user provided email
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: password
+          in: query
+          description: user provided password
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: user created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  email:
+                    type: string
+        '403':
+          description: user already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '422':
+          description: email or password are not available or are not in needed format
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/signin:
+    post:
+      description: signin user
+      parameters:
+        - name: email
+          in: query
+          description: user provided email
+          required: true
+          schema:
+            type: string
+            format: email
+        - name: password
+          in: query
+          description: user provided password
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: user logedin successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  email:
+                    type: string
+        '404':
+          description: user was not found!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '403':
+          description: username or password is wrong!
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/current:
+    get:
+      security: 
+        - BearerAuth: [user]
+      description: get current user data
+      responses:
+        '200':
+          description: user is loggedin
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  email:
+                    type: string
+        '403':
+          description: user is not loggedin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/refresh-token:
+    post:
+      security:
+        - BearerAuth: [user]
+      description: refresh expired token
+      responses:
+        '201':
+          description: new token granted successcfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  msg:
+                    type: string
+        '403':
+          description: token is not valid
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /users/profile:
+    get:
+      security:
+        - BearerAuth: [user]
+      description: get user profile data
+      responses:
+        '200':
+          description: user is authenticated and data is provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  username:
+                    type: string
+                  email:
+                    type: string
+                  imageUrl:
+                    type: string
+                  createdItems:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        name:
+                          type: string
+        '403':
+          description: user is not logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /inventory:
+    get:
+      security:
+        - BearerAuth: [user]
+      description: get all items that are available
+      responses:
+        '200':
+          description: user is authorized to access data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    name:
+                      type: string
+                    image:
+                      type: string
+                    quantity:
+                      type: number
+        '403':
+          description: user is not authorized to access data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    post:
+      security:
+        - BearerAuth: [user]
+      description: create new inventory item
+      parameters:
+        - in: query
+          name: item
+          required: true
+          schema:
+            $ref: "#/components/schemas/Item"
+      responses:
+        '201':
+          description: item created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+        '403':
+          description: user is not authorized to create item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /inventory/{itemId}:
+    get:
+      security:
+        - BearerAuth: [user]
+      description: get details about item
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+          description: ID of the inventory item
+      responses:
+        '200':
+          description: user is authorized to access item data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  item:
+                    $ref: '#/components/schemas/Item'
+                  quantitiy:
+                    type: number
+                  buys:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Buy"
+                  sells:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Sell"
+        '403':
+          description: user is not authorized to acces this item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Item was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    put:
+      security:
+        - BearerAuth: [user]
+      description: Editing an inventory item
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+          description: Id of item user wants to edit
+        - in: query
+          name: item
+          required: true
+          schema:
+            $ref: '#/components/schemas/Item'
+      responses:
+        '201':
+          description: Item edited successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        '403':
+          description: User is not authorized to edit item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    delete:
+      security:
+        - BearerAuth: [user]
+      description: Deleting an item
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: string
+          description: Id of item user wants to delete
+      responses:
+        '201':
+          description: Item edited successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/message"
+        '403':
+          description: User is not authorized to edit item
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /buy:
+    get:
+      security:
+        - BearerAuth: [user]
+      description: Listing all bought items
+      parameters:
+        - in: path
+          name: offset
+          description: offset for paging
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: count
+          description: number of objects to show
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: sortby
+          description: sorting data option
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: asc
+          description: is ascending?
+          schema:
+            type: boolean
+          required: true
+      responses:
+        '200':
+          description: user is authorized to access data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    image:
+                      description: image of item
+                      type: string
+                    totalPriceRial:
+                      type: number
+                    totalPriceEuro:
+                      type: number
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    post:
+      security:
+        - BearerAuth: [user]
+      description: create new Buy
+      parameters:
+        - in: query
+          name: buy
+          description: buy details
+          schema:
+            $ref: "#/components/schemas/Buy"
+          required: true
+      responses:
+        '201':
+          description: buy created successfully
+          content:
+            application/json:
+              schema:
+               $ref: "#/components/schemas/Buy"
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '422':
+          description: user did not provide all required fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /buy/{buyId}:
+    get:
+      security:
+        - BearerAuth: [user]
+      description: Buy record details
+      parameters:
+        - in: path
+          name: buyId
+          description: buy record id
+          schema:
+            type: string
+          required: true 
+        - in: query
+          name: buy
+          description: buy details
+          schema:
+            $ref: "#/components/schemas/Buy"
+          required: true
+      responses:
+        '200':
+          description: item returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Buy"
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Record was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    put:
+      security:
+        - BearerAuth: [user]
+      description: Edit Buy record
+      parameters:
+        - in: path
+          name: buyId
+          description: buy record id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: buy
+          description: buy details
+          schema:
+            $ref: "#/components/schemas/Buy"
+          required: true
+      responses:
+        '200':
+          description: item Edited successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Buy"
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Record was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    delete:
+      security:
+        - BearerAuth: [user]
+      description: Delete buy record
+      parameters:
+        - in: path
+          name: buyId
+          description: buy record id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: item Edited successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Buy"
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Record was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /sell/{sellId}:
+    get:
+      security:
+        - BearerAuth: [user]
+      description: sell record details
+      parameters:
+        - in: path
+          name: sellId
+          description: sell record id
+          schema:
+            type: string
+          required: true 
+        - in: query
+          name: sell
+          description: sell details
+          schema:
+            $ref: "#/components/schemas/Sell"
+          required: true
+      responses:
+        '200':
+          description: item returned successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sell"
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Record was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    put:
+      security:
+        - BearerAuth: [user]
+      description: Edit Sell record
+      parameters:
+        - in: path
+          name: sellId
+          description: Sell record id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: sell
+          description: sell details
+          schema:
+            $ref: "#/components/schemas/Sell"
+          required: true
+      responses:
+        '200':
+          description: item Edited successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sell"
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Record was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    delete:
+      security:
+        - BearerAuth: [user]
+      description: Delete sell record
+      parameters:
+        - in: path
+          name: sellId
+          description: sell record id
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: item Edited successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Sell"
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '404':
+          description: Record was not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+  /sell:
+    get:
+      security:
+        - BearerAuth: [user]
+      description: Listing all sold items
+      parameters:
+        - in: path
+          name: offset
+          description: offset for paging
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: count
+          description: number of objects to show
+          required: true
+          schema:
+            type: integer
+        - in: path
+          name: sortby
+          description: sorting data option
+          schema:
+            type: string
+          required: true
+        - in: path
+          name: asc
+          description: is ascending?
+          schema:
+            type: boolean
+          required: true
+      responses:
+        '200':
+          description: user is authorized to access data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    image:
+                      description: image of item
+                      type: string
+                    totalPriceRial:
+                      type: number
+                    totalPriceEuro:
+                      type: number
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+    post:
+      security:
+        - BearerAuth: [user]
+      description: create new Buy
+      parameters:
+        - in: query
+          name: sell 
+          description: sell details
+          schema:
+            $ref: "#/components/schemas/Sell"
+          required: true
+      responses:
+        '201':
+          description: sell created successfully
+          content:
+            application/json:
+              schema:
+               $ref: "#/components/schemas/Sell"
+        '403':
+          description: User is not authorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        '422':
+          description: user did not provide all required fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+
