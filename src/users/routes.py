@@ -5,6 +5,7 @@ from src.models.user import User
 from src.users import bp
 from marshmallow import Schema, fields, ValidationError, validate
 import jwt
+from src.utils import get_toekn_from_cookie
 
 from src.utils.encryption import validate_token
 
@@ -34,11 +35,9 @@ def users():
 
 @bp.route('/users/refreshtoken')
 def refresh_token():
-    json_data = request.json
-    if not json_data or 'jwt' not in json_data:
-        return {"err": "You are not logged in!"}, 403
+    cookie = request.headers['Cookie']
+    token = get_toekn_from_cookie(cookie)
 
-    token = json_data['jwt']
     try:
         payload = jwt.decode(token, Config.SECRET_KEY, algorithms=['HS256'])
     except jwt.InvalidTokenError:
@@ -46,7 +45,10 @@ def refresh_token():
 
     try:
         new_token = jwt.encode(
-            {"id": payload.id},
+            {
+                "id": payload['id'],
+                "exp": datetime.utcnow() + timedelta(hours=1)
+            },
             Config.SECRET_KEY,
             algorithm='HS256'
         )
