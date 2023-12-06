@@ -2,6 +2,7 @@ from flask import Flask
 
 from src.config import Config
 from src.extensions import db
+from src.models.user import UserModel
 
 
 def create_app(config_class=Config):
