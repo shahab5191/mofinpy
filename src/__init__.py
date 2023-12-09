@@ -2,7 +2,8 @@ from flask import Flask
 
 from src.config import Config
 from src.extensions import db
-from src.models.user import UserModel
+from src.models.user import User
+from src.models.item import Item
 
 
 def create_app(config_class=Config):
@@ -13,6 +14,7 @@ def create_app(config_class=Config):
         db.create_all()
 
     from src.users import bp as user_bp
+    from src.items import bp as items_bp
     app.register_blueprint(user_bp)
-
+    app.register_blueprint(items_bp)
     return app

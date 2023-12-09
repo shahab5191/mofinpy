@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 from flask import jsonify, request, make_response
 from src.config import Config
-from src.models.user import User
 from src.users import bp
+from src.users.functions import create_user, getUser
 from marshmallow import Schema, fields, ValidationError, validate
 import jwt
 from src.utils import get_toekn_from_cookie
 
-from src.utils.encryption import validate_token
+from src.utils.encryption import generate_token, validate_token
 
 
 class SignSchema(Schema):
@@ -43,17 +43,8 @@ def refresh_token():
     except jwt.InvalidTokenError:
         return {"msg": "You are not logged in!"}, 403
 
-    try:
-        new_token = jwt.encode(
-            {
-                "id": payload['id'],
-                "exp": datetime.utcnow() + timedelta(hours=1)
-            },
-            Config.SECRET_KEY,
-            algorithm='HS256'
-        )
-    except Exception as err:
-        print(err)
+    new_token = generate_token(payload.id, payload.email)
+    if new_token is None:
         return {"msg": "Somthing went wrong! please try again later"}, 500
 
     response = make_response({"msg": "Token refreshed!"})
@@ -76,7 +67,7 @@ def signup():
         return jsonify(err.messages), 400
 
     try:
-        createUserResponse = User(
+        createUserResponse = create_user(
             email=json_data['email'],
             password=json_data['password']
         ).json()
@@ -105,18 +96,13 @@ def signin():
     password = json_data["password"]
 
     try:
-        user = User.getUser(email, password)
+        user = getUser(email, password)
     except Exception:
         return {"err": "email or password is not valid!"}, 403
 
-    try:
-        token = jwt.encode(
-            payload={'id': str(user.id)},
-            key=Config.SECRET_KEY,
-            algorithm='HS256'
-        )
-    except Exception as err:
-        print(err)
+    token = generate_token(str(user.id), user.email)
+
+    if token is None:
         return {"err": "Somthing went wrong! please try again later"}, 500
 
     response = make_response({"msg": "You logged in successfully"})

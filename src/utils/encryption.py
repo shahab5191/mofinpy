@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import bcrypt
 import jwt
 
@@ -26,3 +27,21 @@ def validate_token(token):
         return None
 
     return payload
+
+
+def generate_token(user_id, email):
+    secret = Config.SECRET_KEY
+
+    try:
+        token = jwt.encode(
+            {
+                "id": user_id,
+                "email": email,
+                "exp": datetime.utcnow() + timedelta(hours=1)
+            },
+            secret,
+            algorithm='HS256')
+    except Exception as err:
+        print(err)
+        return None
+    return token
