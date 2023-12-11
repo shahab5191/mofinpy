@@ -3,7 +3,7 @@ from src.items import bp
 from src.items.functions import create_item, delete_item, get_item_by_id, get_items, search_items, update_item
 from src.items.schemas import CreateItemSchema, UpdateItemSchema
 from src.utils.protect_route import protected_route
-from flask import g, jsonify, request
+from flask import g, request
 
 
 @bp.route('/items/', methods=['GET'])
@@ -12,14 +12,15 @@ def items():
     offset = int(request.args.get('offset') or 0)
     limit = int(request.args.get('limit') or 20)
 
-    found_items = get_items(offset, limit)
-    json_found_items = [item.json() for item in found_items["items"]]
+    result = get_items(offset, limit)
+    json_items = [item.json() for item in result["items"]]
     return {
-        "items": json_found_items,
-        "len": len(json_found_items),
-        "offset": offset,
-        "limit": limit,
-        "pages": int((found_items["count"] - offset) / limit)
+        "items": json_items,
+        "pagination": {
+            "total_records": result['count'],
+            "records_left": result['count'] - (offset + len(json_items)),
+            "records_count": len(json_items)
+        }
     }
 
 

@@ -39,11 +39,7 @@ class Item(db.Model):
             "description": self.description,
             "brand": self.brand,
             "image": self.image,
-            "author": {
-                "id": self.author_id,
-                "email": self.author.email,
-                "username": self.author.username
-            }
+            "author": self.author.json()
         }
 
     def __repr__(self):

@@ -18,7 +18,11 @@ class User(db.Model):
     )
 
     def json(self):
-        return {"email": self.email, "id": self.id}
+        return {
+            "id": self.id,
+            "email": self.email,
+            "username": self.username,
+        }
 
     def __repr__(self):
         return f'<User "{self.email}">'

@@ -41,7 +41,7 @@ components:
           type: string
         image:
           type: string
-        creationDate:
+        creation_date:
           type: string
         author:
           $ref: "#/components/schemas/User"
@@ -49,51 +49,105 @@ components:
           type: string
         brand:
           type: string
-    Sell:
+        author_id:
+          type: UUID
+    Inventory:
       type: object
       properties:
-        item:
-          $ref: '#/components/schemas/Item'
-        butItem:
-          $ref: '#/components/schemas/Buy'
-        Quantity:
+        id:
           type: integer
-        UnitPrice:
-          type: number
-        EtRRate:
-          type: number
-        Date:
-          type: string
-        ShippingPrice:
-          type: number 
-        TotalRials:
-          type: number
-        TotalEuros:
-          type: number
-        profitRial:
-          type: number
-        profitEuro:
-          type: number
-    Buy:
+        item_id:
+          type: integer
+        quantity:
+          type: Integer
+        created_date:
+          type: Date
+        updated_date:
+          type: Date
+        warehouse_id:
+          type: integer
+        price_id:
+          type: integer
+    Price:
       type: object
       properties:
-        item:
-          $ref: '#/components/schemas/Item'
-        Quantity:
+        id:
           type: integer
-        UnitPrice:
-          type: number
-        EtRRate:
-          type: number
-        Date:
+        price:
+          type: float
+        unit:
           type: string
-        ShippingPrice:
-          type: number
-        TotalRials:
-          type: number
-        TotalEuros:
-          type: number
-
+        to_rial_ratio:
+          type: float
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+        order_date:
+          type: Date
+        order_quantity:
+          type: integer
+        provider:
+          type: string
+        item_id:
+          type: integer
+        warehouse_id:
+          type: integer
+        price_id:
+          type: integer
+    Transfer:
+      type: object
+      properties:
+        id:
+          type: integer
+        origin_warehouse_id:
+          type: integer
+        dest_warehouse_id:
+          type: integer
+        transfer_price_id:
+          type: integer
+        transfer_date:
+          type: Date
+        recieved_date:
+          type: Date
+        price_id:
+          type: integer
+    Delivery:
+      type: object
+      properties:
+        id:
+          type: integer
+        sales_date:
+          type: Date
+        quantity:
+          type: integer
+        delivery_date:
+          type: Date
+        customer_id:
+          type: integer
+        inventory_id:
+          type: integer
+        warehouse_id:
+          type: integer
+    Warehouse:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        location:
+          type: string
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        address:
+          type: string
 #----------------------------------------------------------------------------
 paths: 
   /users:
@@ -326,6 +380,16 @@ paths:
           required: true
           schema:
             $ref: "#/components/schemas/Item"
+        - in: query
+          name: price
+          required: true
+          schema:
+            $ref: "#/components/schemas/Price"
+        -in: query
+        name: warehouse
+        required: true
+        schema:
+          $ref: "#/components/schemas/Warehouse"
       responses:
         '201':
           description: item created
@@ -364,16 +428,6 @@ paths:
                 properties:
                   item:
                     $ref: '#/components/schemas/Item'
-                  quantitiy:
-                    type: number
-                  buys:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Buy"
-                  sells:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Sell"
         '403':
           description: user is not authorized to acces this item
           content:
@@ -402,13 +456,18 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/Item'
+        - in: query
+          name: price
+          required: true
+          schema:
+            $ref: "#/components/schemas/Price"
       responses:
         '201':
           description: Item edited successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/message"
+                $ref: "#/components/schemas/Item"
         '403':
           description: User is not authorized to edit item
           content:
@@ -439,384 +498,50 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/error"
-  /buy:
+  /orders:
     get:
       security:
         - BearerAuth: [user]
-      description: Listing all bought items
+      description: Get all Orders
       parameters:
         - in: path
           name: offset
-          description: offset for paging
-          required: true
-          schema:
-            type: integer
-        - in: path
-          name: count
-          description: number of objects to show
-          required: true
-          schema:
-            type: integer
-        - in: path
-          name: sortby
-          description: sorting data option
+          required: false
           schema:
             type: string
-          required: true
         - in: path
-          name: asc
-          description: is ascending?
+          name: limit
+          required: false
           schema:
-            type: boolean
-          required: true
-      responses:
-        '200':
-          description: user is authorized to access data
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    image:
-                      description: image of item
-                      type: string
-                    totalPriceRial:
-                      type: number
-                    totalPriceEuro:
-                      type: number
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
+            type: string
+        - in: path
+          name: order_by
+          required: false
+          schema:
+            type: string
+        responses:
+          '200':
+            description: User recieved list of orders
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    schema:
+                      $ref: "#/components/schemas/Order"
+          '403':
+            description: User is not authorized to recieve orders
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/error"
     post:
       security:
         - BearerAuth: [user]
-      description: create new Buy
+      description: Create new order
       parameters:
         - in: query
-          name: buy
-          description: buy details
-          schema:
-            $ref: "#/components/schemas/Buy"
-          required: true
-      responses:
-        '201':
-          description: buy created successfully
-          content:
-            application/json:
-              schema:
-               $ref: "#/components/schemas/Buy"
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        '422':
-          description: user did not provide all required fields
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /buy/{buyId}:
-    get:
-      security:
-        - BearerAuth: [user]
-      description: Buy record details
-      parameters:
-        - in: path
-          name: buyId
-          description: buy record id
-          schema:
-            type: string
-          required: true 
-        - in: query
-          name: buy
-          description: buy details
-          schema:
-            $ref: "#/components/schemas/Buy"
-          required: true
-      responses:
-        '200':
-          description: item returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Buy"
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        '404':
-          description: Record was not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-    put:
-      security:
-        - BearerAuth: [user]
-      description: Edit Buy record
-      parameters:
-        - in: path
-          name: buyId
-          description: buy record id
-          schema:
-            type: string
-          required: true
-        - in: query
-          name: buy
-          description: buy details
-          schema:
-            $ref: "#/components/schemas/Buy"
-          required: true
-      responses:
-        '200':
-          description: item Edited successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Buy"
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        '404':
-          description: Record was not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-    delete:
-      security:
-        - BearerAuth: [user]
-      description: Delete buy record
-      parameters:
-        - in: path
-          name: buyId
-          description: buy record id
-          schema:
-            type: string
-          required: true
-      responses:
-        '200':
-          description: item Edited successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Buy"
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        '404':
-          description: Record was not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /sell/{sellId}:
-    get:
-      security:
-        - BearerAuth: [user]
-      description: sell record details
-      parameters:
-        - in: path
-          name: sellId
-          description: sell record id
-          schema:
-            type: string
-          required: true 
-        - in: query
-          name: sell
-          description: sell details
-          schema:
-            $ref: "#/components/schemas/Sell"
-          required: true
-      responses:
-        '200':
-          description: item returned successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Sell"
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        '404':
-          description: Record was not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-    put:
-      security:
-        - BearerAuth: [user]
-      description: Edit Sell record
-      parameters:
-        - in: path
-          name: sellId
-          description: Sell record id
-          schema:
-            type: string
-          required: true
-        - in: query
-          name: sell
-          description: sell details
-          schema:
-            $ref: "#/components/schemas/Sell"
-          required: true
-      responses:
-        '200':
-          description: item Edited successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Sell"
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        '404':
-          description: Record was not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-    delete:
-      security:
-        - BearerAuth: [user]
-      description: Delete sell record
-      parameters:
-        - in: path
-          name: sellId
-          description: sell record id
-          schema:
-            type: string
-          required: true
-      responses:
-        '200':
-          description: item Edited successfully
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Sell"
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        '404':
-          description: Record was not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-  /sell:
-    get:
-      security:
-        - BearerAuth: [user]
-      description: Listing all sold items
-      parameters:
-        - in: path
-          name: offset
-          description: offset for paging
+          name: order
           required: true
           schema:
-            type: integer
-        - in: path
-          name: count
-          description: number of objects to show
-          required: true
-          schema:
-            type: integer
-        - in: path
-          name: sortby
-          description: sorting data option
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: asc
-          description: is ascending?
-          schema:
-            type: boolean
-          required: true
-      responses:
-        '200':
-          description: user is authorized to access data
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: string
-                    name:
-                      type: string
-                    image:
-                      description: image of item
-                      type: string
-                    totalPriceRial:
-                      type: number
-                    totalPriceEuro:
-                      type: number
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-    post:
-      security:
-        - BearerAuth: [user]
-      description: create new Buy
-      parameters:
-        - in: query
-          name: sell 
-          description: sell details
-          schema:
-            $ref: "#/components/schemas/Sell"
-          required: true
-      responses:
-        '201':
-          description: sell created successfully
-          content:
-            application/json:
-              schema:
-               $ref: "#/components/schemas/Sell"
-        '403':
-          description: User is not authorized
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-        '422':
-          description: user did not provide all required fields
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/error"
-
+            $ref: "#/components/schemas/Order"
