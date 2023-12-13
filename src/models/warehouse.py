@@ -4,7 +4,10 @@ from src.extensions import db
 class Warehouse(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String())
-    location = db.Column(db.string())
+    location_id = db.Column(db.Integer(), db.ForeignKey('location.id'))
+
+    # Relationships
+    location = db.relationship('Location', lazy=True)
 
     def __init__(self, name, location):
         self.name = name
@@ -17,5 +20,5 @@ class Warehouse(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "location": self.location
+            "location": self.location.json()
         }

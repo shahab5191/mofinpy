@@ -2,6 +2,7 @@ from marshmallow import ValidationError
 from src.items import bp
 from src.items.functions import create_item, delete_item, get_item_by_id, get_items, search_items, update_item
 from src.items.schemas import CreateItemSchema, UpdateItemSchema
+from src.utils.pagination import pagination_return_format
 from src.utils.protect_route import protected_route
 from flask import g, request
 
@@ -13,15 +14,11 @@ def items():
     limit = int(request.args.get('limit') or 20)
 
     result = get_items(offset, limit)
-    json_items = [item.json() for item in result["items"]]
-    return {
-        "items": json_items,
-        "pagination": {
-            "total_records": result['count'],
-            "records_left": result['count'] - (offset + len(json_items)),
-            "records_count": len(json_items)
-        }
-    }
+    return pagination_return_format(
+        items=result['arr'],
+        count=result['count'],
+        offset=offset
+    )
 
 
 @bp.route('/items/', methods=['POST'])

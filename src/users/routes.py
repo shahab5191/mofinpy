@@ -35,6 +35,8 @@ def users():
 
 @bp.route('/users/refreshtoken')
 def refresh_token():
+    if 'Cookie' not in request.headers:
+        return {"err": "you are not signed in!"}
     cookie = request.headers['Cookie']
     token = get_toekn_from_cookie(cookie)
 
@@ -64,6 +66,7 @@ def signup():
     try:
         schema.load(json_data)
     except ValidationError as err:
+        print('[signup_route]', err)
         return jsonify(err.messages), 400
 
     try:
@@ -72,6 +75,7 @@ def signup():
             password=json_data['password']
         ).json()
     except Exception as err:
+        print('[signup_route]', err)
         return {"err": str(err)}, 400
 
     if not createUserResponse:

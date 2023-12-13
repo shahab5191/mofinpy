@@ -6,8 +6,7 @@ class Transaction(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     amount_id = db.Column(db.Integer(), db.ForeignKey('price.id'))
     description = db.Column(db.Text())
-    reason_id = db.Column(db.Integer(), db.ForeignKey(
-        'transaction_reason_enums.id'))
+    reason_id = db.Column(db.Integer(), db.ForeignKey('enum.id'))
     creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
     update_date = db.Column(
         db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -15,7 +14,7 @@ class Transaction(db.Model):
     bank_id = db.Column(db.Integer(), db.ForeignKey('bank.id'))
 
     # Relationships
-    reason = db.relationship('TransactionReasonEnums')
+    reason = db.relationship('Enum')
     author = db.relationship('User')
     amount = db.relationship('Price')
     bank = db.relationship('Bank')

@@ -6,19 +6,17 @@ from src.models.item import Item
 def get_items(offset, limit):
     count = db.session.query(func.count(Item.id)).scalar()
     items = Item.query.order_by(Item.creation_date).offset(offset).limit(limit).all()
-    return {"count": count, "items": items}
+    return {"count": count, "arr": items}
 
 
 def create_item(name, author_id, image=None, description=None, brand=None):
     new_item = Item(name=name, author_id=author_id)
     if image:
-        Item.image = image
+        new_item.image = image
     if description:
-        Item.description = description
+        new_item.description = description
     if brand:
-        Item.brand = brand
-    Item.name = name
-    Item.author_id = author_id
+        new_item.brand = brand
     db.session.add(new_item)
     db.session.commit()
     return new_item
