@@ -35,17 +35,18 @@ def users():
 
 @bp.route('/users/refreshtoken')
 def refresh_token():
-    if 'Cookie' not in request.headers:
-        return {"err": "you are not signed in!"}
-    cookie = request.headers['Cookie']
-    token = get_toekn_from_cookie(cookie)
+    json_data = request.json
+    if json_data is None:
+        return {"err": "please provide previous token"}
+
+    token = json_data['jwt']
 
     try:
         payload = jwt.decode(token, Config.SECRET_KEY, algorithms=['HS256'])
     except jwt.InvalidTokenError:
         return {"msg": "You are not logged in!"}, 403
 
-    new_token = generate_token(payload.id, payload.email)
+    new_token = generate_token(payload['id'], payload['email'])
     if new_token is None:
         return {"msg": "Somthing went wrong! please try again later"}, 500
 

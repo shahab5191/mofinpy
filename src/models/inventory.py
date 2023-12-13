@@ -25,7 +25,9 @@ class Inventory(db.Model):
     currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
     to_rial_rate = db.Column(db.Float())
     warehouse_id = db.Column(db.Integer(), db.ForeignKey('warehouse.id'))
-    purchase_id = db.Column(db.Integer(), db.ForeignKey('purchase_order.id'))
+    purchase_id = db.Column(
+        db.Integer(),
+        db.ForeignKey('purchase_order.id', ondelete='CASCADE'))
 
     # Relationships
     item = db.relationship('Item', lazy=True)
@@ -35,7 +37,10 @@ class Inventory(db.Model):
     )
     currency = db.relationship('Currency', lazy=True)
     warehouse = db.relationship('Warehouse', lazy=True)
-    purchase = db.relationship('PurchaseOrder', lazy=True)
+    purchase = db.relationship(
+        'PurchaseOrder', lazy=True,
+        cascade="all, delete"
+    )
 
     def __init__(
         self,

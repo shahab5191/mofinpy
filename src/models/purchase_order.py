@@ -6,7 +6,7 @@ class PurchaseOrder(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     quantity = db.Column(db.Integer())
     provider_id = db.Column(db.Integer(), db.ForeignKey('provider.id'))
-    order_date = db.Column(db.DateTime())
+    order_date = db.Column(db.DateTime(), default=datetime.utcnow)
     update_date = db.Column(
         db.DateTime,
         default=datetime.utcnow,
@@ -45,7 +45,7 @@ class PurchaseOrder(db.Model):
         return {
             "id": self.id,
             "quantity": self.quantity,
-            "provider": self.provider,
+            "provider": self.provider.json(),
             "order_date": self.order_date,
             "update_date": self.update_date,
             "author": self.author.json(),

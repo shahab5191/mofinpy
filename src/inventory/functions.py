@@ -38,5 +38,4 @@ def create_inventory(
 
     db.session.add(new_inventory)
     db.session.commit()
-
     return new_inventory

@@ -20,9 +20,11 @@ def create_app(config_class=Config):
     from src.users import bp as user_bp
     from src.items import bp as items_bp
     from src.purchase import bp as purchase_bp
+    from src.provider import bp as provider_bp
     app.register_blueprint(user_bp)
     app.register_blueprint(items_bp)
     app.register_blueprint(purchase_bp)
+    app.register_blueprint(provider_bp)
 
     with app.app_context():
         db.create_all()

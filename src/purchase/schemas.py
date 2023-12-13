@@ -11,3 +11,14 @@ class CreatePurchaseSchema(Schema):
     order_date = fields.DateTime(required=False)
     update_date = fields.DateTime(required=False)
     make_unique = fields.Boolean(required=True)
+
+
+class UpdatePurchaseSchema(Schema):
+    item_id = fields.Integer()
+    price = fields.Float()
+    currency_id = fields.Integer()
+    to_rial_rate = fields.Float()
+    quantity = fields.Integer()
+    provider_id = fields.Integer()
+    order_date = fields.DateTime()
+    update_date = fields.DateTime()

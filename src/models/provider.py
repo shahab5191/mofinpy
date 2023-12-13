@@ -17,10 +17,12 @@ class Provider(db.Model):
         default=datetime.utcnow,
         onupdate=datetime.utcnow
     )
+    author_id = db.Column(db.UUID(), db.ForeignKey('user.id'))
 
     # Relationships
     location = db.relationship('Location')
     currency = db.relationship('Currency')
+    author = db.relationship('User')
 
     def __init__(
             self,
@@ -30,6 +32,7 @@ class Provider(db.Model):
             contact_person,
             currency_id,
             location_id,
+            author_id,
             website=None,
             creation_date=None,
             update_date=None
@@ -40,6 +43,7 @@ class Provider(db.Model):
         self.contact_person = contact_person
         self.currency_id = currency_id
         self.location_id = location_id
+        self.author_id = author_id
         if website is not None:
             self.website = website
         if creation_date is not None:
@@ -58,5 +62,6 @@ class Provider(db.Model):
             "tel": self.tel,
             "contact_person": self.contact_person,
             "currency": self.currency.json(),
-            "location": self.location.json()
+            "location": self.location.json(),
+            "author": self.author.json()
         }
