@@ -60,6 +60,7 @@ class Provider(db.Model):
             "name": self.name,
             "email": self.email,
             "tel": self.tel,
+            "website": self.website,
             "contact_person": self.contact_person,
             "currency": self.currency.json(),
             "location": self.location.json(),

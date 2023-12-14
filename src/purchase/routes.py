@@ -61,7 +61,7 @@ def purchase_edit(id):
         print('[update_purchase]:', err)
         return {"err": str(err)}
 
-    return {"purchase": purchase.json()}
+    return {"purchase": purchase}
 
 
 @bp.route('/purchases/<int:id>', methods=['DELETE'])

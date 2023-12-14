@@ -5,7 +5,6 @@ from src.users import bp
 from src.users.functions import create_user, getUser
 from marshmallow import Schema, fields, ValidationError, validate
 import jwt
-from src.utils import get_toekn_from_cookie
 
 from src.utils.encryption import generate_token, validate_token
 

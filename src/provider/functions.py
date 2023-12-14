@@ -38,3 +38,39 @@ def create_provider(authord_id, **kwargs):
     db.session.commit()
 
     return new_provider
+
+
+def update_provider(
+        id,
+        **kwargs
+):
+    provider = Provider.query.get(id)
+    if provider is None:
+        raise Exception(f'Provider with id {id} was not found!')
+
+    provider.name = kwargs.get('name', provider.name)
+    provider.email = kwargs.get('email', provider.email)
+    provider.tel = kwargs.get('tel', provider.tel)
+    provider.contact_person = kwargs.get(
+        'contact_person', provider.contact_person)
+    provider.currency_id = kwargs.get('currency_id', provider.currency_id)
+    provider.location_id = kwargs.get('location_id', provider.location_id)
+    provider.website = kwargs.get('website', provider.website)
+    provider.creation_date = kwargs.get(
+        'creation_date', provider.creation_date)
+    provider.update_date = kwargs.get('update_date', provider.update_date)
+
+    db.session.commit()
+
+    return provider.json()
+
+
+def delete_provider(id):
+    provider = Provider.query.get(id)
+    if provider is None:
+        raise Exception(f'Provider with id:{id} was not found!')
+
+    db.session.delete(provider)
+    db.session.commit()
+
+    return

@@ -11,3 +11,15 @@ class CreateProviderSchema(Schema):
     website = fields.Url()
     createion_date = fields.DateTime()
     update_date = fields.DateTime()
+
+
+class UpdateProviderSchema(Schema):
+    name = fields.String()
+    email = fields.String()
+    tel = fields.String()
+    contact_person = fields.String()
+    currency_id = fields.Integer()
+    location_id = fields.Integer()
+    website = fields.Url()
+    creation_date = fields.DateTime()
+    update_date = fields.DateTime()

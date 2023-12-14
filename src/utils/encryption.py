@@ -37,7 +37,7 @@ def generate_token(user_id, email):
             {
                 "id": user_id,
                 "email": email,
-                "exp": datetime.utcnow() + timedelta(hours=1)
+                "exp": datetime.utcnow() + timedelta(hours=24)
             },
             secret,
             algorithm='HS256')

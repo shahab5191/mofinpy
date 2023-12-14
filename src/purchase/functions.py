@@ -103,14 +103,15 @@ def update_purchase(id, **kwargs):
 
     db.session.commit()
 
-    return purchase
+    return purchase.json()
 
 
 def delete_purchase(id):
     purchase = PurchaseOrder.query.get(id)
     if purchase is None:
         raise Exception(f'Item number {id} was not found!')
-
+    if purchase.state == "completed":
+        raise Exception(f'Item number {id} is Completed and cannot be deleted!')
     db.session.delete(purchase)
     db.session.commit()
     return
