@@ -1,76 +1,61 @@
 from flask import g, request
+from src.models.purchase_order import PurchaseOrder
 from src.purchase import bp
-from src.purchase.functions import create_purchase, delete_purchase, get_purchases, update_purchase
+from src.purchase.functions import create_purchase, delete_purchase, update_purchase
 from src.purchase.schemas import CreatePurchaseSchema, UpdatePurchaseSchema
-from src.utils.pagination import pagination_return_format
+from src.utils.crud import CRUD
 from src.utils.protect_route import protected_route
+
+
+crud = CRUD(model=PurchaseOrder,
+            create_schema=CreatePurchaseSchema(),
+            update_schema=UpdatePurchaseSchema(),
+            name="Purchase Order"
+            )
 
 
 @bp.route('/purchases/', methods=['GET'])
 @protected_route
 def purchases():
-    offset = int(request.args.get('offset') or 0)
-    limit = int(request.args.get('limit') or 20)
-    result = get_purchases(offset=offset, limit=limit)
-    return pagination_return_format(
-        items=result['arr'],
-        count=result['count'],
-        offset=offset
-    )
+    return crud.get_all(request.args)
 
 
 @bp.route('/purchases/', methods=['POST'])
 @protected_route
 def purchases_create():
     json_data = request.json
-    if not json_data:
-        return {"err": "You should provide data"}, 400
-
-    schema = CreatePurchaseSchema()
-    errors = schema.validate(json_data)
-    if errors:
-        return {"err": errors}
-
-    try:
-        created_purchase = create_purchase(
-            **json_data,
-            author_id=g.user_data['id']
-        )
-    except Exception as err:
-        print('[create_purchase]', err)
-        return {"err": str(err)}, 400
-
-    return {"item": created_purchase.json()}
+    if json_data is not None and 'state' in json_data and json_data['state'] == 'Received':
+        schema = CreatePurchaseSchema()
+        errors = schema.validate(json_data)
+        if errors:
+            return {"err": "please provide valid data"}, 400
+        return create_purchase(author_id=g.user_data['id'],
+                               **json_data)
+    return crud.create(data=request.json,
+                       author_id=g.user_data['id']
+                       )
 
 
 @bp.route('/purchases/<int:id>', methods=['PATCH'])
 @protected_route
-def purchase_edit(id):
+def purchase_update(id):
     json_data = request.json
     if json_data is None:
-        return {"err": "You should provide some data"}
-    schema = UpdatePurchaseSchema()
-    errors = schema.validate(json_data)
-
-    if errors:
-        return {"err": errors}
-
-    try:
-        purchase = update_purchase(id, **json_data)
-    except Exception as err:
-        print('[update_purchase]:', err)
-        return {"err": str(err)}
-
-    return {"purchase": purchase}
+        return {"err": "You should provide some data"}, 404
+    if 'state' in json_data and json_data['state'] == 'Received':
+        schema = UpdatePurchaseSchema()
+        errors = schema.validate(json_data)
+        if errors:
+            print('[purchase_update]', errors)
+            return {"err": "please provide valid data"}, 400
+        return update_purchase(id=id, **json_data)
+    else:
+        return crud.update(id=id,
+                           data=json_data
+                           )
 
 
 @bp.route('/purchases/<int:id>', methods=['DELETE'])
 @protected_route
 def purchase_delete(id):
-    try:
-        delete_purchase(id)
-    except Exception as err:
-        print('[purchase_delete]', err)
-        return {"err": str(err)}
-
-    return {"msg": "Item Removed successfully!"}
+    return delete_purchase(id)

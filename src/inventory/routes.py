@@ -1,22 +1,40 @@
-from flask import request
+from flask import g, request
 from src.inventory import bp
-from src.inventory.functions import get_inventory_list
+from src.inventory.schema import CreateInventorySchema, UpdateInventorySchema
+from src.models.inventory import Inventory
+from src.utils.crud import CRUD
 from src.utils.protect_route import protected_route
+
+
+crud = CRUD(model=Inventory,
+            update_schema=UpdateInventorySchema(),
+            create_schema=CreateInventorySchema(),
+            name="Inventory"
+            )
 
 
 @bp.route('/inventory/', methods=['GET'])
 @protected_route
 def inventory_list():
-    offset = int(request.args.get('offset') or 0)
-    limit = int(request.args.get('limit') or 20)
+    return crud.get_all(request.args)
 
-    result = get_inventory_list(offset, limit)
-    json_list = [item.json() for item in result['inventory']]
-    return {
-        "inventory": json_list,
-        "pagination": {
-            "total_records": result['count'],
-            "records_left": result['count'] - (offset + len(json_list)),
-            "records_count": len(json_list)
-        }
-    }
+
+@bp.route('/inventory/', methods=['POST'])
+@protected_route
+def inventory_create():
+    return crud.create(
+        author_id=g.user_data['id'],
+        data=request.json
+    )
+
+
+@bp.route('/inventory/<int:id>', methods=['PATCH'])
+@protected_route
+def inventory_update(id):
+    return crud.update(id, request.json)
+
+
+@bp.route('/inventory/<int:id>', methods=['DELETE'])
+@protected_route
+def inventory_delete(id):
+    return crud.delete(id)

@@ -28,6 +28,7 @@ class Inventory(db.Model):
     purchase_id = db.Column(
         db.Integer(),
         db.ForeignKey('purchase_order.id', ondelete='CASCADE'))
+    provider_id = db.Column(db.Integer(), db.ForeignKey('provider.id'))
 
     # Relationships
     item = db.relationship('Item', lazy=True)
@@ -41,6 +42,7 @@ class Inventory(db.Model):
         'PurchaseOrder', lazy=True,
         cascade="all, delete"
     )
+    provider = db.relationship('Provider', lazy=True)
 
     def __init__(
         self,
@@ -51,6 +53,7 @@ class Inventory(db.Model):
         currency_id,
         to_rial_rate,
         purchase_id,
+        provider_id,
         warehouse_id=None,
         creation_date=None,
         update_date=None,
@@ -62,6 +65,7 @@ class Inventory(db.Model):
         self.currency_id = currency_id
         self.to_rial_rate = to_rial_rate
         self.purchase_id = purchase_id
+        self.provider_id = provider_id
         if warehouse_id is not None:
             self.warehouse_id = warehouse_id
         if creation_date is not None:
@@ -80,7 +84,8 @@ class Inventory(db.Model):
             "warehouse": self.warehouse.json(),
             "price": self.price,
             "currency": self.currency.json(),
-            "to_rial_ratio": self.to_rial_rate
+            "to_rial_ratio": self.to_rial_rate,
+            "provider_id": self.provider.json()
         }
 
     def __repr__(self) -> str:

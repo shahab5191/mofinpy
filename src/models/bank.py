@@ -7,13 +7,12 @@ class Bank(db.Model):
     name = db.Column(db.String(40))
     currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
     creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    balance = db.Column(db.Float())
     update_date = db.Column(
         db.DateTime(), default=datetime.utcnow, onpdate=datetime.utcnow)
-    author_id = db.Column(db.UUID(), db.ForeignKey('user.id'))
 
     # Relationships
     currency = db.relationship('Currency')
-    author = db.relationship('User')
 
     def __init__(self, name, currency_id):
         self.name = name
@@ -27,7 +26,6 @@ class Bank(db.Model):
             "id": self.id,
             "name": self.name,
             "currency": self.currency.json(),
-            "author": self.author.json(),
             "creation_date": self.creation_date,
             "update_date": self.update_date
         }

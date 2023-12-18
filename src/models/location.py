@@ -12,7 +12,7 @@ class Location(db.Model):
     update_date = db.Column(
         db.DateTime(),
         default=datetime.utcnow,
-        on_update=datetime.utcnow
+        onupdate=datetime.utcnow
     )
 
     # Relationships

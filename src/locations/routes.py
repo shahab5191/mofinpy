@@ -1,7 +1,7 @@
 from flask import g, request
 from src.locations import bp
-from src.locations.functions import create_location, list_locations
-from src.locations.schema import CreateLocationSchema
+from src.locations.functions import create_location, delete_location, list_locations, update_location
+from src.locations.schema import CreateLocationSchema, UpdateLocationSchema
 from src.utils.pagination import pagination_return_format
 from src.utils.protect_route import protected_route
 
@@ -44,6 +44,37 @@ def location_create():
         )
     except Exception as err:
         print('[location_create]', err)
-        return {"err", str(err)}, 500
+        return {"err": str(err)}, 500
 
     return {"location": new_location}, 201
+
+
+@bp.route('/locations/<int:id>', methods=['PATCH'])
+@protected_route
+def location_update(id):
+    json_data = request.json
+    if json_data is None:
+        return {"err": "You must provide Location data!"}, 400
+    schema = UpdateLocationSchema()
+    errors = schema.validate(json_data)
+    if errors:
+        return {"err": errors}, 400
+    try:
+        updated_location = update_location(id, **json_data)
+    except Exception as err:
+        print('[update_location]', err)
+        return {"err": str(err)}, 404
+
+    return {"location": updated_location}, 201
+
+
+@bp.route('/locations/<int:id>', methods=['DELETE'])
+@protected_route
+def location_delete(id):
+
+    try:
+        delete_location(id)
+    except Exception as err:
+        return {"err": err}, 404
+
+    return {"msg": f'Location with id:{id} deleted successfully'}

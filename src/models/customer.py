@@ -10,6 +10,7 @@ class Customer(db.Model):
     contact_person = db.Column(db.String(40))
     currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
     location_id = db.Column(db.Integer(), db.ForeignKey('location.id'))
+    author_id = db.Column(db.UUID(), db.ForeignKey('user.id'))
     creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
     update_date = db.Column(
         db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -17,6 +18,7 @@ class Customer(db.Model):
     # Relationships
     currency = db.relationship('Currency')
     location = db.relationship('Location')
+    author = db.relationship('User')
 
     def __init__(
             self,
@@ -26,6 +28,7 @@ class Customer(db.Model):
             contact_person,
             currency_id,
             location_id,
+            author_id,
             creation_date=None,
             update_date=None
             ):
@@ -35,6 +38,7 @@ class Customer(db.Model):
         self.contact_person = contact_person
         self.currency_id = currency_id
         self.location_id = location_id
+        self.author_id = author_id
         if creation_date is not None:
             self.creation_date = creation_date
         if update_date is not None:
@@ -53,5 +57,6 @@ class Customer(db.Model):
             "currency": self.currency.json(),
             "location": self.location.json(),
             "creation_date": self.creation_date,
-            "update_date": self.update_date
+            "update_date": self.update_date,
+            "author": self.author.json()
         }

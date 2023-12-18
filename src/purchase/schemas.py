@@ -1,4 +1,12 @@
+from enum import Enum
 from marshmallow import Schema, fields
+
+
+class PurchaseOrderStates(Enum):
+    Ordered = "Ordered"
+    Shipped = "Shipped"
+    Received = "Received"
+    Canceled = "Canceled"
 
 
 class CreatePurchaseSchema(Schema):
@@ -8,9 +16,11 @@ class CreatePurchaseSchema(Schema):
     to_rial_rate = fields.Float(required=True)
     quantity = fields.Integer()
     provider_id = fields.Integer(required=True)
-    order_date = fields.DateTime(required=False)
+    cration_date = fields.DateTime(required=False)
     update_date = fields.DateTime(required=False)
     make_unique = fields.Boolean(required=True)
+    state = fields.Enum(PurchaseOrderStates)
+    warehouse_id = fields.Integer()
 
 
 class UpdatePurchaseSchema(Schema):
@@ -20,5 +30,8 @@ class UpdatePurchaseSchema(Schema):
     to_rial_rate = fields.Float()
     quantity = fields.Integer()
     provider_id = fields.Integer()
-    order_date = fields.DateTime()
+    creation_date = fields.DateTime()
     update_date = fields.DateTime()
+    make_unique = fields.Boolean()
+    state = fields.Enum(PurchaseOrderStates)
+    warehouse_id = fields.Integer()
