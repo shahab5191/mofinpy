@@ -18,18 +18,12 @@ class PurchaseOrder(db.Model):
         default=datetime.utcnow,
         onupdate=datetime.utcnow
     )
-    author_id = db.Column(
-        db.UUID(),
-        db.ForeignKey('user.id'),
-        nullable=False
-    )
     state = db.Column(db.Enum("Ordered", "Shipped",
                       "Canceled", "Received", name='purchase_states'))
     make_unique = db.Column(db.Boolean(), default=False)
 
     # RelationShips
     provider = db.relationship('Provider', lazy=True)
-    author = db.relationship('User', lazy=True)
     item = db.relationship('Item', lazy=True)
     warehouse = db.relationship('Warehouse', lazy=True)
     currency = db.relationship('Currency', lazy=True)
@@ -38,7 +32,6 @@ class PurchaseOrder(db.Model):
             self,
             quantity,
             provider_id,
-            author_id,
             make_unique,
             item_id,
             price,
@@ -51,7 +44,6 @@ class PurchaseOrder(db.Model):
     ):
         self.quantity = quantity
         self.provider_id = provider_id
-        self.author_id = author_id
         self.state = state
         self.make_unique = make_unique
         self.price = price
@@ -72,7 +64,6 @@ class PurchaseOrder(db.Model):
             "provider": self.provider.json(),
             "creation_date": self.creation_date,
             "update_date": self.update_date,
-            "author": self.author.json(),
             "state": self.state,
             "make_unique": self.make_unique,
             "price": self.price,

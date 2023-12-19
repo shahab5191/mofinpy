@@ -26,6 +26,8 @@ def create_app(config_class=Config):
     from src.customers import bp as customers_bp
     from src.warehouses import bp as warehouses_bp
     from src.sell_orders import bp as sell_orders_bp
+    from src.history import bp as history_bp
+    from src.transactions import bp as transaction_bp
 
     app.register_blueprint(user_bp)
     app.register_blueprint(items_bp)
@@ -35,7 +37,8 @@ def create_app(config_class=Config):
     app.register_blueprint(customers_bp)
     app.register_blueprint(warehouses_bp)
     app.register_blueprint(sell_orders_bp)
-
+    app.register_blueprint(history_bp)
+    app.register_blueprint(transaction_bp)
     with app.app_context():
         db.create_all()
 

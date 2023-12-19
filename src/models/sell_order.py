@@ -8,7 +8,6 @@ class SellOrder(db.Model):
     customer_id = db.Column(db.Integer(), db.ForeignKey('customer.id'))
     payment = db.Column(db.Float())
     currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
-    author_id = db.Column(db.UUID(), db.ForeignKey('user.id'))
     creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
     update_date = db.Column(
         db.DateTime(),
@@ -26,7 +25,6 @@ class SellOrder(db.Model):
     inventory = db.relationship('Inventory')
     customer = db.relationship('Customer')
     currency = db.relationship('Currency')
-    author = db.relationship('User')
 
     def __init__(
             self,
@@ -34,7 +32,6 @@ class SellOrder(db.Model):
             customer_id,
             payment,
             currency_id,
-            author_id,
             state=None,
             creation_date=None,
             update_date=None
@@ -43,7 +40,6 @@ class SellOrder(db.Model):
         self.customer_id = customer_id
         self.payment = payment
         self.currency_id = currency_id
-        self.author_id = author_id
         if state is not None:
             self.state = state
         if creation_date is not None:
@@ -61,7 +57,6 @@ class SellOrder(db.Model):
             "customer": self.customer.json(),
             "payment": self.payment,
             "currency_id": self.currency.json(),
-            "author": self.author.json(),
             "creation_date": self.creation_date,
             "update_date": self.update_date
         }

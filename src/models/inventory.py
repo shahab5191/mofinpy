@@ -9,11 +9,6 @@ class Inventory(db.Model):
         db.ForeignKey('item.id'),
         nullable=False
     )
-    author_id = db.Column(
-        db.UUID(),
-        db.ForeignKey('user.id'),
-        nullable=False
-    )
     quantity = db.Column(db.Integer())
     creation_date = db.Column(db.DateTime, default=datetime.utcnow)
     update_date = db.Column(
@@ -32,10 +27,6 @@ class Inventory(db.Model):
 
     # Relationships
     item = db.relationship('Item', lazy=True)
-    author = db.relationship(
-        'User',
-        backref=db.backref('inventory_item', lazy=True)
-    )
     currency = db.relationship('Currency', lazy=True)
     warehouse = db.relationship('Warehouse', lazy=True)
     purchase = db.relationship(
@@ -47,7 +38,6 @@ class Inventory(db.Model):
     def __init__(
         self,
         item_id,
-        author_id,
         quantity,
         price,
         currency_id,
@@ -59,7 +49,6 @@ class Inventory(db.Model):
         update_date=None,
     ):
         self.item_id = item_id
-        self.author_id = author_id
         self.quantity = quantity
         self.price = price
         self.currency_id = currency_id
@@ -77,7 +66,6 @@ class Inventory(db.Model):
         return {
             "id": self.id,
             "item": self.item.json(),
-            "author": self.author.json(),
             "quantity": self.quantity,
             "creation_date": self.creation_date,
             "update_date": self.update_date,

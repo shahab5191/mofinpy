@@ -7,7 +7,6 @@ class Location(db.Model):
     country = db.Column(db.String(40))
     city = db.Column(db.String(40))
     address = db.Column(db.Text())
-    author_id = db.Column(db.UUID(), db.ForeignKey('user.id'))
     creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
     update_date = db.Column(
         db.DateTime(),
@@ -15,13 +14,9 @@ class Location(db.Model):
         onupdate=datetime.utcnow
     )
 
-    # Relationships
-    author = db.relationship('User')
-
     def __init__(
             self,
             address,
-            author_id,
             country=None,
             city=None,
             creation_date=None,
@@ -29,7 +24,6 @@ class Location(db.Model):
             ):
 
         self.address = address
-        self.author_id = author_id
         if country is not None:
             self.country = country
         if city is not None:
@@ -48,7 +42,6 @@ class Location(db.Model):
             "country": self.country,
             "city": self.city,
             "address": self.address,
-            "author": self.author.json(),
             "creation_date": self.creation_date,
             "update_date": self.update_date
         }

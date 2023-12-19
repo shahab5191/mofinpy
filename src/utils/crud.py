@@ -1,6 +1,7 @@
 from marshmallow.utils import is_instance_or_subclass
 from sqlalchemy import func
 from src.extensions import db
+from src.models.history import History
 from src.utils.pagination import pagination_return_format
 
 
@@ -36,22 +37,26 @@ class CRUD():
             offset=offset
         )
 
-    def create(self, author_id, data):
+    def create(self, user_id, data):
         if data is None:
             return {"err": "You should provide required data"}, 400
         errors = self.create_schema.validate(data)
         if errors:
             print('[crud_create]', errors)
             return {"err": errors}, 400
-        new_item = self.model(author_id=author_id, **data)
-        new_item.author_id = author_id
-
+        new_item = self.model(**data)
         db.session.add(new_item)
         db.session.commit()
-
+        new_history = History(user_id=user_id,
+                              model_name=self.model.__tablename__,
+                              record_id=new_item.id,
+                              action="Create",
+                              )
+        db.session.add(new_history)
+        db.session.commit()
         return {self.name: new_item.json()}, 201
 
-    def update(self, id, data):
+    def update(self, id, user_id, data):
         if data is None:
             return {"err": "You should provide atleast 1 field to update"}, 400
 
@@ -69,14 +74,27 @@ class CRUD():
             if not attr.startswith('__') and not callable(getattr(self.model, attr)):
                 setattr(item, attr, data.get(attr, getattr(item, attr)))
 
+        new_history = History(user_id=user_id,
+                              model_name=self.model.__tablename__,
+                              record_id=item.id,
+                              action="Update",
+                              changes=str(data)
+                              )
+        db.session.add(new_history)
         db.session.commit()
         return {"item": item.json()}
 
-    def delete(self, id):
+    def delete(self, id, user_id):
         item = self.model.query.get(id)
         if item is None:
             return {"err": f'{self.name} with id:{id} was not found!'}, 404
         db.session.delete(item)
+        new_history = History(user_id=user_id,
+                              model_name=self.model.__tablename__,
+                              record_id=item.id,
+                              action="Delete",
+                              )
+        db.session.add(new_history)
         db.session.commit()
 
         return {

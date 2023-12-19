@@ -2,14 +2,14 @@ from datetime import datetime
 from src.extensions import db
 
 
-class history(db.Model):
+class History(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
     user_id = db.Column(db.UUID(), db.ForeignKey('user.id'), nullable=False)
     model_name = db.Column(db.String(), nullable=False)
     record_id = db.Column(db.Integer(), nullable=False)
     action = db.Column(db.String(), nullable=False)
-    changes = db.Column(db.String(), nullable=False)
+    changes = db.Column(db.String())
 
     # Relationships
     user = db.relationship('User', lazy=True)
@@ -19,7 +19,7 @@ class history(db.Model):
                  model_name,
                  record_id,
                  action,
-                 changes
+                 changes=None
                  ):
         self.user_id = user_id
         self.model_name = model_name
@@ -32,7 +32,7 @@ class history(db.Model):
 
     def json(self):
         return {
-            "user": self.user.json,
+            "user": self.user.json(),
             "model_name": self.model_name,
             "record_id": self.record_id,
             "action": self.action,

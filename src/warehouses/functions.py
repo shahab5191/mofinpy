@@ -20,7 +20,6 @@ def create_warehouse(author_id, **kwargs):
     new_warehouse = Warehouse(
         name=name,
         location_id=location_id,
-        author_id=author_id,
         creation_date=creation_date,
         update_date=update_date
     )
