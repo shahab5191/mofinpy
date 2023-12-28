@@ -5,11 +5,14 @@ from src.extensions import db
 class Bank(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     name = db.Column(db.String(40))
-    currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
+    currency_id = db.Column(db.Integer(),
+                            db.ForeignKey('currency.id'),
+                            nullable=False
+                            )
     creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
-    balance = db.Column(db.Float())
+    balance = db.Column(db.Float(), default=0, nullable=False)
     update_date = db.Column(
-        db.DateTime(), default=datetime.utcnow, onpdate=datetime.utcnow)
+        db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
 
     # Relationships
     currency = db.relationship('Currency')

@@ -3,7 +3,7 @@ from marshmallow import Schema, ValidationError, fields, validates
 
 class CreateItemSchema(Schema):
     name = fields.String(required=True)
-    image = fields.Url()
+    image_id = fields.Integer()
     description = fields.String()
     brand = fields.String()
 
@@ -11,7 +11,8 @@ class CreateItemSchema(Schema):
     def validate_name(self, value):
         min = 4
         if len(value) < min:
-            raise ValidationError(f'Name should have more than {min} characters')
+            raise ValidationError(
+                f'Name should have more than {min} characters')
 
     @validates('description')
     def validate_description(self, value):
@@ -19,12 +20,13 @@ class CreateItemSchema(Schema):
             return
         min = 4
         if len(value) < min:
-            raise ValidationError(f'Description should have more than {min} characters')
+            raise ValidationError(
+                f'Description should have more than {min} characters')
 
 
 class UpdateItemSchema(Schema):
     name = fields.String()
-    image = fields.Url()
+    image_id = fields.Integer()
     description = fields.String()
     brand = fields.String()
 
@@ -34,7 +36,8 @@ class UpdateItemSchema(Schema):
             return
         min = 4
         if len(value) < min:
-            raise ValidationError(f'Name should have more than {min} characters')
+            raise ValidationError(
+                f'Name should have more than {min} characters')
 
     @validates('description')
     def validate_description(self, value):
@@ -42,4 +45,5 @@ class UpdateItemSchema(Schema):
             return
         min = 4
         if len(value) < min:
-            raise ValidationError(f'Description should have more than {min} characters')
+            raise ValidationError(
+                f'Description should have more than {min} characters')

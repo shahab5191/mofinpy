@@ -13,28 +13,28 @@ crud = CRUD(model=Inventory,
             )
 
 
-@bp.route('/inventory/', methods=['GET'])
+@bp.route('/api/inventory', methods=['GET'])
 @protected_route
 def inventory_list():
     return crud.get_all(request.args)
 
 
-@bp.route('/inventory/', methods=['POST'])
+@bp.route('/api/inventory', methods=['POST'])
 @protected_route
 def inventory_create():
     return crud.create(
-        author_id=g.user_data['id'],
+        user_id=g.user_data['id'],
         data=request.json
     )
 
 
-@bp.route('/inventory/<int:id>', methods=['PATCH'])
+@bp.route('/api/inventory<int:id>', methods=['PATCH'])
 @protected_route
 def inventory_update(id):
-    return crud.update(id, request.json)
+    return crud.update(id=id, data=request.json, user_id=g.user_data['id'])
 
 
-@bp.route('/inventory/<int:id>', methods=['DELETE'])
+@bp.route('/api/inventory<int:id>', methods=['DELETE'])
 @protected_route
 def inventory_delete(id):
-    return crud.delete(id)
+    return crud.delete(id, user_id=g.user_data['id'])

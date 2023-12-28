@@ -1,6 +1,8 @@
 from datetime import datetime
 from sqlalchemy import event
+from sqlalchemy.orm import Session
 from src.extensions import db
+from src.models.bank import Bank
 
 
 class Transactions(db.Model):
@@ -42,11 +44,21 @@ class Transactions(db.Model):
             "update_date": self.update_date
         }
 
-# TODO: implement bank update functionality
 
+@event.listens_for(Transactions, 'after_insert')
+def update_bank(mapper, connection, target):
+    db_engine = connection.engine
+    session = Session(bind=db_engine)
 
-def update_bank(mapper, conncetion, target):
-    print(target)
+    currency = target.currency_id
+    amount = target.amount
+    bank = session.query(Bank).where(
+        Bank.currency_id == currency
+    ).with_for_update().first()
+    if bank is None:
+        print(['update_bank'], f'Bank with currency: {
+              currency} does not exist!')
+        raise Exception('Bank with this currency does not exist!')
+    bank.balance += amount
 
-
-event.listen(Transactions, 'after_insert', update_bank)
+    session.commit()

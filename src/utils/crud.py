@@ -34,7 +34,7 @@ class CRUD():
         return pagination_return_format(
             count=count,
             items=item_list,
-            offset=offset
+            offset=int(offset)
         )
 
     def create(self, user_id, data):

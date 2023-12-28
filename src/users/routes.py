@@ -17,33 +17,37 @@ class SignSchema(Schema):
     )
 
 
-@bp.route('/users/current')
+@bp.route('/api/users/current')
 def users():
-    json_data = request.json
-    if not json_data or 'jwt' not in json_data:
-        return {"err": "you are not logged in!"}, 403
+    authHeader = request.headers.get('Authorization')
+    if authHeader is None:
+        return {"err": "please provide token"}
 
-    token = json_data['jwt']
+    token = authHeader[authHeader.index(" ") + 1:]
+    if token is None:
+        return {"err": "please provide previous token"}
 
     payload = validate_token(token)
     if not payload:
-        return {"err": "You are not logged in!"}, 403
+        return {"err": "You are not logged in!"}, 401
 
     return payload
 
 
-@bp.route('/users/refreshtoken')
+@bp.route('/api/users/refreshtoken')
 def refresh_token():
-    json_data = request.json
-    if json_data is None:
-        return {"err": "please provide previous token"}
+    authHeader = request.headers.get('Authorization')
+    if authHeader is None:
+        return {"err": "please provide token"}
 
-    token = json_data['jwt']
+    token = authHeader[authHeader.index(" ") + 1:]
+    if token is None:
+        return {"err": "please provide previous token"}
 
     try:
         payload = jwt.decode(token, Config.SECRET_KEY, algorithms=['HS256'])
     except jwt.InvalidTokenError:
-        return {"msg": "You are not logged in!"}, 403
+        return {"msg": "You are not logged in!"}, 401
 
     new_token = generate_token(payload['id'], payload['email'])
     if new_token is None:
@@ -57,7 +61,7 @@ def refresh_token():
     return response
 
 
-@bp.route('/users/signup', methods=["POST"])
+@bp.route('/api/users/signup', methods=["POST"])
 def signup():
     json_data = request.json
     if not json_data:
@@ -84,7 +88,7 @@ def signup():
     return createUserResponse, 201
 
 
-@bp.route('/users/signin', methods=["POST"])
+@bp.route('/api/users/signin', methods=["POST"])
 def signin():
     json_data = request.json
 
@@ -102,7 +106,7 @@ def signin():
     try:
         user = getUser(email, password)
     except Exception:
-        return {"err": "email or password is not valid!"}, 403
+        return {"err": "email or password is not valid!"}, 401
 
     token = generate_token(str(user.id), user.email)
 
