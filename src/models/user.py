@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from sqlalchemy.types import UUID
 from src.extensions import db
 import uuid
@@ -10,12 +10,24 @@ class User(db.Model):
     username = db.Column(db.String(40))
     password = db.Column(db.String())
     salt = db.Column(db.String())
-    created_date = db.Column(db.DateTime, default=datetime.utcnow)
+    created_date = db.Column(db.DateTime, default=datetime.now(UTC))
     update_date = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC)
     )
+
+    def __init__(
+            self,
+            email,
+            password,
+            salt,
+            username=None,
+    ):
+        self.email = email
+        self.password = password
+        self.salt = salt
+        self.username = username
 
     def json(self):
         return {

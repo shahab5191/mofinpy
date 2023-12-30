@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from src.extensions import db
 
 
@@ -9,10 +9,10 @@ class Bank(db.Model):
                             db.ForeignKey('currency.id'),
                             nullable=False
                             )
-    creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime(), default=datetime.now(UTC))
     balance = db.Column(db.Float(), default=0, nullable=False)
     update_date = db.Column(
-        db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+        db.DateTime(), default=datetime.now(UTC), onupdate=datetime.now(UTC))
 
     # Relationships
     currency = db.relationship('Currency')

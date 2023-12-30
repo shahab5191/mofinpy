@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from sqlalchemy import event
 from sqlalchemy.orm import Session
 from src.extensions import db
@@ -7,11 +7,11 @@ from src.models.bank import Bank
 
 class Transactions(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime(), default=datetime.now(UTC))
     update_date = db.Column(
         db.DateTime(),
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC)
     )
     currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
     amount = db.Column(db.Float())

@@ -29,7 +29,8 @@ class CRUD():
         limit = args.get('limit', 10)
         offset = args.get('offset', 0)
         item_list = self.model.query.order_by(
-            getattr(self.model, 'update_date')).limit(limit).offset(offset).all()
+            getattr(
+                self.model, 'update_date')).limit(limit).offset(offset).all()
 
         return pagination_return_format(
             count=count,
@@ -47,11 +48,12 @@ class CRUD():
         new_item = self.model(**data)
         db.session.add(new_item)
         db.session.commit()
-        new_history = History(user_id=user_id,
-                              model_name=self.model.__tablename__,
-                              record_id=new_item.id,
-                              action="Create",
-                              )
+        new_history = History(
+            user_id=user_id,
+            model_name=self.model.__tablename__,
+            record_id=new_item.id,
+            action="Create",
+            )
         db.session.add(new_history)
         db.session.commit()
         return {self.name: new_item.json()}, 201

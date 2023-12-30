@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from src.extensions import db
 
 
 class History(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime(), default=datetime.now(UTC))
     user_id = db.Column(db.UUID(), db.ForeignKey('user.id'), nullable=False)
     model_name = db.Column(db.String(), nullable=False)
     record_id = db.Column(db.Integer(), nullable=False)

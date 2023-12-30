@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from sqlalchemy.orm import Session
 
 from sqlalchemy.sql.base import event
@@ -9,10 +9,10 @@ from src.models.bank import Bank
 class Currency(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     unit = db.Column(db.String(20))
-    creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime(), default=datetime.now(UTC))
     update_date = db.Column(db.DateTime(),
-                            default=datetime.utcnow,
-                            onupdate=datetime.utcnow
+                            default=datetime.now(UTC),
+                            onupdate=datetime.now(UTC)
                             )
 
     def __init__(self, unit):

@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from src.extensions import db
 
 
@@ -10,15 +10,15 @@ class Inventory(db.Model):
         nullable=False
     )
     quantity = db.Column(db.Integer())
-    creation_date = db.Column(db.DateTime, default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime, default=datetime.now(UTC))
     update_date = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC)
     )
     price = db.Column(db.Float())
     currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
-    to_rial_rate = db.Column(db.Float())
+    base_currency_rate = db.Column(db.Float())
     warehouse_id = db.Column(db.Integer(), db.ForeignKey('warehouse.id'))
     purchase_id = db.Column(
         db.Integer(),
@@ -41,7 +41,7 @@ class Inventory(db.Model):
         quantity,
         price,
         currency_id,
-        to_rial_rate,
+        base_currency_rate,
         purchase_id,
         provider_id,
         warehouse_id=None,
@@ -52,7 +52,7 @@ class Inventory(db.Model):
         self.quantity = quantity
         self.price = price
         self.currency_id = currency_id
-        self.to_rial_rate = to_rial_rate
+        self.base_currency_rate = base_currency_rate
         self.purchase_id = purchase_id
         self.provider_id = provider_id
         if warehouse_id is not None:
@@ -72,7 +72,7 @@ class Inventory(db.Model):
             "warehouse": self.warehouse.json(),
             "price": self.price,
             "currency": self.currency.json(),
-            "to_rial_ratio": self.to_rial_rate,
+            "base_currency_rate": self.base_currency_rate,
             "provider_id": self.provider.json()
         }
 

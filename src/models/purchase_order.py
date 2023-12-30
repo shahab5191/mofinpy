@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from src.extensions import db
 
 
@@ -6,17 +6,17 @@ class PurchaseOrder(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     item_id = db.Column(db.Integer(), db.ForeignKey('item.id'), nullable=False)
     price = db.Column(db.Float(), nullable=False)
-    to_rial_rate = db.Column(db.Float(), nullable=False)
+    base_currency_rate = db.Column(db.Float(), nullable=False)
     currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
     quantity = db.Column(db.Integer(), nullable=False)
     provider_id = db.Column(db.Integer(), db.ForeignKey(
         'provider.id'), nullable=False)
-    creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime(), default=datetime.now(UTC))
     warehouse_id = db.Column(db.Integer(), db.ForeignKey('warehouse.id'))
     update_date = db.Column(
         db.DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC)
     )
     state = db.Column(db.Enum("Ordered", "Shipped",
                       "Canceled", "Received", name='purchase_states'))
@@ -35,7 +35,7 @@ class PurchaseOrder(db.Model):
             make_unique,
             item_id,
             price,
-            to_rial_rate,
+            base_currency_rate,
             currency_id,
             warehouse_id=None,
             creation_date=None,
@@ -48,7 +48,7 @@ class PurchaseOrder(db.Model):
         self.make_unique = make_unique
         self.price = price
         self.item_id = item_id
-        self.to_rial_rate = to_rial_rate
+        self.base_currency_rate = base_currency_rate
         self.currency_id = currency_id
         if warehouse_id is not None:
             self.warehouse_id = warehouse_id
@@ -68,7 +68,7 @@ class PurchaseOrder(db.Model):
             "make_unique": self.make_unique,
             "price": self.price,
             "item": self.item.json(),
-            "to_rial_rate": self.to_rial_rate,
+            "base_currency_rate": self.base_currency_rate,
             "currency": self.currency.json(),
             "warehouse": self.warehouse.json() if self.warehouse is not None else None,
         }

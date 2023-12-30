@@ -8,7 +8,7 @@ class CreateInventorySchema(Schema):
     update_date = fields.DateTime()
     price = fields.Float(required=True)
     currency_id = fields.Integer(required=True)
-    to_rial_rate = fields.Float(required=True)
+    base_currency_rate = fields.Float(required=True)
     warehouse_id = fields.Integer(required=True)
     purchase_id = fields.Integer(required=True)
 
@@ -20,6 +20,6 @@ class UpdateInventorySchema(Schema):
     update_date = fields.DateTime()
     price = fields.Float()
     currency_id = fields.Integer()
-    to_rial_rate = fields.Float()
+    base_currency_rate = fields.Float()
     warehouse_id = fields.Integer()
     purchase_id = fields.Integer()

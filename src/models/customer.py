@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from src.extensions import db
 
 
@@ -10,9 +10,9 @@ class Customer(db.Model):
     contact_person = db.Column(db.String(40))
     currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
     location_id = db.Column(db.Integer(), db.ForeignKey('location.id'))
-    creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime(), default=datetime.now(UTC))
     update_date = db.Column(
-        db.DateTime(), default=datetime.utcnow, onupdate=datetime.utcnow)
+        db.DateTime(), default=datetime.now(UTC), onupdate=datetime.now(UTC))
 
     # Relationships
     currency = db.relationship('Currency')

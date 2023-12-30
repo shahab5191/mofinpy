@@ -6,14 +6,14 @@ from src.config import Config
 from src.extensions import db
 
 
-def create_app(config_class=Config):
+def create_app(config_class=Config, app_db=db):
     UPLOAD_FOLDER = './public/uploads'
     app = Flask(__name__)
     CORS(app)
     app.static_folder = os.path.join(app.root_path, 'public')
     app.config.from_object(config_class)
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-    db.init_app(app)
+    app_db.init_app(app)
 
     from src.users import bp as user_bp
     from src.items import bp as items_bp
@@ -44,7 +44,8 @@ def create_app(config_class=Config):
     app.register_blueprint(upload_bp)
     app.register_blueprint(statics_bp)
     app.register_blueprint(inventory_bp)
+
     with app.app_context():
-        db.create_all()
+        app_db.create_all()
 
     return app

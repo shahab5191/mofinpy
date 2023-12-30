@@ -8,10 +8,11 @@ def create_user(email, password):
         raise Exception('Email is already taken!')
 
     hashed = hash_password(password)
-    createdUser = User()
-    createdUser.email = email
-    createdUser.password = hashed['hash']
-    createdUser.salt = hashed['salt']
+    createdUser = User(
+        email=email,
+        password=hashed['hash'],
+        salt=hashed['salt']
+    )
     db.session.add(createdUser)
     db.session.commit()
     return createdUser

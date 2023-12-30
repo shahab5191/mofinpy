@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 
 from flask import request
 from src.extensions import db
@@ -7,10 +7,10 @@ from src.extensions import db
 class ImageMeta(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     filename = db.Column(db.String(), nullable=False)
-    creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime(), default=datetime.now(UTC))
     update_date = db.Column(db.DateTime(),
-                            default=datetime.utcnow,
-                            onupdate=datetime.utcnow
+                            default=datetime.now(UTC),
+                            onupdate=datetime.now(UTC)
                             )
 
     def __init__(self, filename) -> None:

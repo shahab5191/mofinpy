@@ -31,9 +31,10 @@ def purchases_create():
             return {"err": "please provide valid data"}, 400
         return create_purchase(author_id=g.user_data['id'],
                                **json_data)
-    return crud.create(data=request.json,
-                       author_id=g.user_data['id']
-                       )
+    return crud.create(
+        data=request.json,
+        user_id=g.user_data['id']
+    )
 
 
 @bp.route('/purchases/<int:id>', methods=['PATCH'])
@@ -50,9 +51,11 @@ def purchase_update(id):
             return {"err": "please provide valid data"}, 400
         return update_purchase(id=id, **json_data)
     else:
-        return crud.update(id=id,
-                           data=json_data
-                           )
+        return crud.update(
+            id=id,
+            data=json_data,
+            user_id=g.user_data['id']
+        )
 
 
 @bp.route('/purchases/<int:id>', methods=['DELETE'])

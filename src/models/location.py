@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from src.extensions import db
 
 
@@ -7,11 +7,11 @@ class Location(db.Model):
     country = db.Column(db.String(40))
     city = db.Column(db.String(40))
     address = db.Column(db.Text())
-    creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime(), default=datetime.now(UTC))
     update_date = db.Column(
         db.DateTime(),
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC)
     )
 
     def __init__(

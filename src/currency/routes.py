@@ -1,4 +1,5 @@
 from flask import g, request
+from src.config import Config
 from src.currency import bp
 from src.currency.schema import CreateCurrencySchema, UpdateCurrencySchema
 from src.models.currency import Currency
@@ -13,19 +14,19 @@ crud = CRUD(model=Currency,
             )
 
 
-@bp.route('/currency/', methods=['GET'])
+@bp.route(f'{Config.URL_PREFIX}/currency/', methods=['GET'])
 @protected_route
 def currency_get_all():
     return crud.get_all(request.args)
 
 
-@bp.route('/currency/<int:id>', methods=['GET'])
+@bp.route(f'{Config.URL_PREFIX}/currency/<int:id>', methods=['GET'])
 @protected_route
 def currency_get(id):
     return crud.get(id)
 
 
-@bp.route('/currency/', methods=['POST'])
+@bp.route(f'{Config.URL_PREFIX}/currency/', methods=['POST'])
 @protected_route
 def currency_create():
     return crud.create(user_id=g.user_data['id'],
@@ -33,7 +34,7 @@ def currency_create():
                        )
 
 
-@bp.route('/currency/<int:id>', methods=['PATCH'])
+@bp.route(f'{Config.URL_PREFIX}/currency/<int:id>', methods=['PATCH'])
 @protected_route
 def currency_update(id):
     return crud.update(id=id,
@@ -42,7 +43,7 @@ def currency_update(id):
                        )
 
 
-@bp.route('/currency/<int:id>', methods=['DELETE'])
+@bp.route(f'{Config.URL_PREFIX}/currency/<int:id>', methods=['DELETE'])
 @protected_route
 def currency_delete(id):
     return crud.delete(id=id, user_id=g.user_data['id'])

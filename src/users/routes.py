@@ -21,11 +21,11 @@ class SignSchema(Schema):
 def users():
     authHeader = request.headers.get('Authorization')
     if authHeader is None:
-        return {"err": "please provide token"}
+        return {"err": "You are not logged in!"}, 401
 
     token = authHeader[authHeader.index(" ") + 1:]
     if token is None:
-        return {"err": "please provide previous token"}
+        return {"err": "please provide previous token"}, 400
 
     payload = validate_token(token)
     if not payload:
@@ -56,7 +56,7 @@ def refresh_token():
     response = make_response({"msg": "Token refreshed!"})
     response.set_cookie('token',
                         new_token,
-                        expires=datetime.utcnow() + timedelta(hours=1)
+                        expires=datetime.now(UTC) + timedelta(hours=1)
                         )
     return response
 
@@ -117,6 +117,6 @@ def signin():
     response.set_cookie(
         'token',
         token,
-        expires=datetime.utcnow() + timedelta(hours=1)
+        expires=datetime.now(UTC) + timedelta(hours=1)
     )
     return response

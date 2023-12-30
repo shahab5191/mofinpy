@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, UTC
 from src.extensions import db
 
 
@@ -8,11 +8,11 @@ class SellOrder(db.Model):
     customer_id = db.Column(db.Integer(), db.ForeignKey('customer.id'))
     payment = db.Column(db.Float())
     currency_id = db.Column(db.Integer(), db.ForeignKey('currency.id'))
-    creation_date = db.Column(db.DateTime(), default=datetime.utcnow)
+    creation_date = db.Column(db.DateTime(), default=datetime.now(UTC))
     update_date = db.Column(
         db.DateTime(),
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow
+        default=datetime.now(UTC),
+        onupdate=datetime.now(UTC)
     )
     state = db.Column(db.Enum(
                       'Ordered',
