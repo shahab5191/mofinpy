@@ -1,8 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 import bcrypt
+from flask import current_app
 import jwt
-
-from src.config import Config
 
 
 def hash_password(password, salt=None):
@@ -18,7 +17,7 @@ def compare_password(password, hash):
 
 
 def validate_token(token):
-    secret = Config.SECRET_KEY
+    secret = current_app.config['SECRET_KEY']
 
     try:
         payload = jwt.decode(token, secret, algorithms=['HS256'])
@@ -30,8 +29,7 @@ def validate_token(token):
 
 
 def generate_token(user_id, email):
-    secret = Config.SECRET_KEY
-
+    secret = current_app.config['SECRET_KEY']
     try:
         token = jwt.encode(
             {

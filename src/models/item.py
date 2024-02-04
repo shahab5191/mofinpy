@@ -32,7 +32,7 @@ class Item(db.Model):
             "update_date": self.update_date,
             "description": self.description,
             "brand": self.brand,
-            "image": self.image.json(),
+            "image": self.image.json() if self.image is not None else None,
         }
 
     def __repr__(self):

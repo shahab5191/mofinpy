@@ -1,3 +1,4 @@
+from src.config import Config
 from src.items import bp
 from src.items.functions import search_items
 from src.items.schemas import CreateItemSchema, UpdateItemSchema
@@ -14,13 +15,13 @@ crud = CRUD(model=Item,
             )
 
 
-@bp.route('/items/', methods=['GET'])
+@bp.route(f'{Config.URL_PREFIX}/items/', methods=['GET'])
 @protected_route
 def items():
     return crud.get_all(request.args)
 
 
-@bp.route('/items/', methods=['POST'])
+@bp.route(f'{Config.URL_PREFIX}/items/', methods=['POST'])
 @protected_route
 def items_create():
     return crud.create(user_id=g.user_data['id'],
@@ -28,19 +29,19 @@ def items_create():
                        )
 
 
-@bp.route('/items/<int:id>', methods=['GET'])
+@bp.route(f'{Config.URL_PREFIX}/items/<int:id>', methods=['GET'])
 @protected_route
 def items_get_by_id(id):
     return crud.get(id)
 
 
-@bp.route('/items/<int:id>', methods=['DELETE'])
+@bp.route(f'{Config.URL_PREFIX}/items/<int:id>', methods=['DELETE'])
 @protected_route
 def items_delete(id):
     return crud.delete(id, user_id=g.user_data['id'])
 
 
-@bp.route('/items/<int:id>', methods=['PATCH'])
+@bp.route(f'{Config.URL_PREFIX}/items/<int:id>', methods=['PATCH'])
 @protected_route
 def items_edit(id):
     return crud.update(id=id,
@@ -51,7 +52,7 @@ def items_edit(id):
 # TODO: Move search to crud class
 
 
-@bp.route('/items/<string:query>')
+@bp.route(f'{Config.URL_PREFIX}/items/<string:query>')
 @protected_route
 def items_search(query):
     if len(query) < 3:

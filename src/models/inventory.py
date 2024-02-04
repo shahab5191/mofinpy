@@ -73,7 +73,8 @@ class Inventory(db.Model):
             "price": self.price,
             "currency": self.currency.json(),
             "base_currency_rate": self.base_currency_rate,
-            "provider_id": self.provider.json()
+            "purchase_order": self.purchase.json(),
+            "provider": self.provider.json()
         }
 
     def __repr__(self) -> str:

@@ -17,7 +17,8 @@ class CRUD():
         self.name = name
 
     def get(self, id):
-        item = self.model.query.get(id)
+        item = db.session.get(self.model, id)
+        print(item)
         if item is None:
             return {"err": f'{self.name} with id:{id} was not found!'}, 404
 
@@ -28,7 +29,7 @@ class CRUD():
             getattr(self.model, 'id'))).scalar()
         limit = args.get('limit', 10)
         offset = args.get('offset', 0)
-        item_list = self.model.query.order_by(
+        item_list = db.session.query(self.model).order_by(
             getattr(
                 self.model, 'update_date')).limit(limit).offset(offset).all()
 
@@ -53,7 +54,7 @@ class CRUD():
             model_name=self.model.__tablename__,
             record_id=new_item.id,
             action="Create",
-            )
+        )
         db.session.add(new_history)
         db.session.commit()
         return {self.name: new_item.json()}, 201
@@ -66,7 +67,7 @@ class CRUD():
         if errors:
             return {"err": errors}, 400
 
-        item = self.model.query.get(id)
+        item = db.session.get(self.model, id)
         if item is None:
             return {"err": f'{self.name} with id:{id} was not found!'}
 
@@ -84,10 +85,10 @@ class CRUD():
                               )
         db.session.add(new_history)
         db.session.commit()
-        return {"item": item.json()}
+        return {"item": item.json()}, 201
 
     def delete(self, id, user_id):
-        item = self.model.query.get(id)
+        item = db.session.get(self.model, id)
         if item is None:
             return {"err": f'{self.name} with id:{id} was not found!'}, 404
         db.session.delete(item)

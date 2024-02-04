@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from flask import jsonify, request, make_response
 from src.config import Config
 from src.users import bp
@@ -105,7 +105,8 @@ def signin():
 
     try:
         user = getUser(email, password)
-    except Exception:
+    except Exception as error:
+        print('[users route: getuser]', error)
         return {"err": "email or password is not valid!"}, 401
 
     token = generate_token(str(user.id), user.email)

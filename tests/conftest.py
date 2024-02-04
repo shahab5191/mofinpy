@@ -1,5 +1,4 @@
 import pytest
-from sqlalchemy import text
 from src import create_app
 from tests.config import TestConfig
 from src.extensions import db
@@ -23,7 +22,6 @@ def runner(app):
 
 @pytest.fixture()
 def database(app):
-    print('-----run inside database------')
     with app.app_context():
         db.drop_all()
         db.create_all()
