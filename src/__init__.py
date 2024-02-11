@@ -9,6 +9,8 @@ from src.extensions import db
 def create_app(config_class=Config, app_db=db):
     UPLOAD_FOLDER = './public/uploads'
     app = Flask(__name__)
+    app.config['CORS_ORIGINS'] = ['*']
+    app.config['CORS_HEADERS'] = ['Content-Type']
     CORS(app)
     app.static_folder = os.path.join(app.root_path, 'public')
     app.config.from_object(config_class)
