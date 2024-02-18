@@ -8,11 +8,12 @@ from flask import g, request
 from src.utils.crud import CRUD
 
 
-crud = CRUD(model=Item,
-            create_schema=CreateItemSchema(),
-            update_schema=UpdateItemSchema(),
-            name="Item"
-            )
+crud = CRUD(
+    model=Item,
+    create_schema=CreateItemSchema(),
+    update_schema=UpdateItemSchema(),
+    name="Item"
+)
 
 
 @bp.route(f'{Config.URL_PREFIX}/items/', methods=['GET'])
@@ -50,16 +51,3 @@ def items_edit(id):
                        )
 
 # TODO: Move search to crud class
-
-
-@bp.route(f'{Config.URL_PREFIX}/items/<string:query>')
-@protected_route
-def items_search(query):
-    if len(query) < 3:
-        return {"err": "search query must be atleast 3 characters long!"}, 400
-
-    offset = int(request.args.get('offset') or 0)
-    limit = int(request.args.get('limit') or 20)
-
-    result = search_items(query=query, offset=offset, limit=limit)
-    return {"items": result}

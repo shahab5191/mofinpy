@@ -1,4 +1,5 @@
 from flask import g, request
+from src.config import Config
 from src.models.purchase_order import PurchaseOrder
 from src.purchase import bp
 from src.purchase.functions import create_purchase, delete_purchase, update_purchase
@@ -14,13 +15,13 @@ crud = CRUD(model=PurchaseOrder,
             )
 
 
-@bp.route('/purchases/', methods=['GET'])
+@bp.route(f'{Config.URL_PREFIX}/purchases/', methods=['GET'])
 @protected_route
 def purchases():
     return crud.get_all(request.args)
 
 
-@bp.route('/purchases/', methods=['POST'])
+@bp.route(f'{Config.URL_PREFIX}/purchases/', methods=['POST'])
 @protected_route
 def purchases_create():
     json_data = request.json
@@ -37,7 +38,7 @@ def purchases_create():
     )
 
 
-@bp.route('/purchases/<int:id>', methods=['PATCH'])
+@bp.route(f'{Config.URL_PREFIX}/purchases/<int:id>', methods=['PATCH'])
 @protected_route
 def purchase_update(id):
     json_data = request.json
@@ -58,7 +59,7 @@ def purchase_update(id):
         )
 
 
-@bp.route('/purchases/<int:id>', methods=['DELETE'])
+@bp.route(f'{Config.URL_PREFIX}/purchases/<int:id>', methods=['DELETE'])
 @protected_route
 def purchase_delete(id):
     return delete_purchase(id)

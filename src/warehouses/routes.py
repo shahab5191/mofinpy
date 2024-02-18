@@ -1,4 +1,5 @@
 from flask import g, request
+from src.config import Config
 from src.models.warehouse import Warehouse
 from src.utils.crud import CRUD
 from src.utils.protect_route import protected_route
@@ -13,13 +14,13 @@ crud = CRUD(model=Warehouse,
             )
 
 
-@bp.route('/warehouses/', methods=['GET'])
+@bp.route(f'{Config.URL_PREFIX}/warehouses/', methods=['GET'])
 @protected_route
 def warehouses_list():
     return crud.get_all(request.args)
 
 
-@bp.route('/warehouses/', methods=['POST'])
+@bp.route(f'{Config.URL_PREFIX}/warehouses/', methods=['POST'])
 @protected_route
 def warehouses_create():
     return crud.create(user_id=g.user_data['id'],
@@ -27,7 +28,7 @@ def warehouses_create():
                        )
 
 
-@bp.route('/warehouses/<int:id>', methods=['PATCH'])
+@bp.route(f'{Config.URL_PREFIX}/warehouses/<int:id>', methods=['PATCH'])
 @protected_route
 def warehouse_update(id):
     return crud.update(id=id,
@@ -36,7 +37,7 @@ def warehouse_update(id):
                        )
 
 
-@bp.route('/warehouses/<int:id>', methods=['DELETE'])
+@bp.route(f'{Config.URL_PREFIX}/warehouses/<int:id>', methods=['DELETE'])
 @protected_route
 def warehouse_delete(id):
     return crud.delete(id, user_id=g.user_data['id'])

@@ -18,13 +18,14 @@ class CRUD():
 
     def get(self, id):
         item = db.session.get(self.model, id)
-        print(item)
         if item is None:
             return {"err": f'{self.name} with id:{id} was not found!'}, 404
 
         return {self.name: item.json()}, 200
 
     def get_all(self, args):
+        if args.get('query'):
+            return self.search(args)
         count = db.session.query(func.count(
             getattr(self.model, 'id'))).scalar()
         limit = args.get('limit', 10)
@@ -103,3 +104,22 @@ class CRUD():
         return {
             "msg": f'{self.name} with id:{id} was deleted successfully!'
         }, 201
+
+    def search(self, args):
+        limit = args.get('limit', 10)
+        offset = args.get('offset', 0)
+        query = args.get('query')
+
+        all_found = self.model.query.filter(
+            self.model.name.ilike(
+                f"%{query}%"
+            )
+        )
+
+        item_list = all_found.offset(offset).limit(limit).all()
+        count = all_found.count()
+        return pagination_return_format(
+            count=count,
+            items=item_list,
+            offset=int(offset)
+        )
