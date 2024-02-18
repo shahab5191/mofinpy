@@ -16,7 +16,7 @@ class CreatePurchaseSchema(Schema):
     base_currency_rate = fields.Float(required=True)
     quantity = fields.Integer()
     provider_id = fields.Integer(required=True)
-    cration_date = fields.DateTime(required=False)
+    creation_date = fields.DateTime(required=False)
     update_date = fields.DateTime(required=False)
     make_unique = fields.Boolean(required=True)
     state = fields.Enum(PurchaseOrderStates)
